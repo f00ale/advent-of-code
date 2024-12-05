@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
-project(aoc23)
+project(aoc24)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -10,7 +10,7 @@ endif()
 
 add_compile_options(-Wall -Wextra -march=native)
 
-add_library(aoc23_problems OBJECT
+add_library(aoc24_problems OBJECT
         src/p01.cpp
         src/p02.cpp
         src/p03.cpp
@@ -38,5 +38,5 @@ add_library(aoc23_problems OBJECT
 #        src/p25.cpp
         )
 
-add_executable(aoc23 src/main.cpp)
-target_link_libraries(aoc23 PRIVATE aoc23_problems)
+add_executable(aoc24 src/main.cpp)
+target_link_libraries(aoc24 PRIVATE aoc24_problems)
