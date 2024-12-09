@@ -28,14 +28,14 @@ std::tuple<std::string, std::string> p09(const std::string &input) {
 
     }
 
-    for (int i = 0; i< 2 ; i++) { // get rid of off-by-one
+    {
         ssize_t front = 0;
         ssize_t back = disk.size() - 1;
-        while (front < back) {
+        while (true) {
             while (disk[front] >= 0) front++;
             while (disk[back] < 0) back--;
+            if (back < front) break;
             std::swap(disk[front], disk[back]);
-            front++, back--;
         }
     }
     for (size_t i = 0; i < disk.size(); i++) {
