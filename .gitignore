@@ -3,3 +3,4 @@ cmake-build*/
 .idea/
 /data
 .clang-format
+.DS_Store
