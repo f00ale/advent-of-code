@@ -5,17 +5,19 @@
 #include <tuple>
 #include <set>
 
-uint64_t concat(uint64_t a, uint64_t b) {
-    return std::stoull(std::to_string(a)+std::to_string(b));
+static uint64_t concat(uint64_t a, uint64_t b) {
+    for (uint64_t i = 10;; i*=10) {
+        if (b < i) return i*a+b;
+    }
 }
 
-int rec(uint64_t target, uint64_t curr, std::vector<uint64_t>::iterator it, std::vector<uint64_t>::iterator end) {
+static int rec(uint64_t target, uint64_t curr, std::vector<uint64_t>::iterator it, std::vector<uint64_t>::iterator end) {
     if (it == end) {
         return target == curr;
     }
     return rec(target, curr + *it, it+1, end) + rec(target, curr * *it, it+1, end);
 }
-int rec2(uint64_t target, uint64_t curr, std::vector<uint64_t>::iterator it, std::vector<uint64_t>::iterator end) {
+static int rec2(uint64_t target, uint64_t curr, std::vector<uint64_t>::iterator it, std::vector<uint64_t>::iterator end) {
     if (it == end) {
         return target == curr;
     }
