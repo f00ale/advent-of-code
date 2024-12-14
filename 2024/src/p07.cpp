@@ -15,12 +15,14 @@ static int rec(uint64_t target, uint64_t curr, std::vector<uint64_t>::iterator i
     if (it == end) {
         return target == curr;
     }
+    if (curr > target) return 0;
     return rec(target, curr + *it, it+1, end) + rec(target, curr * *it, it+1, end);
 }
 static int rec2(uint64_t target, uint64_t curr, std::vector<uint64_t>::iterator it, std::vector<uint64_t>::iterator end) {
     if (it == end) {
         return target == curr;
     }
+    if (curr > target) return 0;
     return rec2(target, curr + *it, it+1, end) +
            rec2(target, curr * *it, it+1, end) +
                rec2(target, concat(curr,*it), it+1, end);
