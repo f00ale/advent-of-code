@@ -61,10 +61,12 @@ std::tuple<std::string, std::string> p06(const std::string &input) {
             if (c=='X') ans1++;
         }
     }
+    const auto visited = map;
 
     for (size_t r = 0; r < orig.size(); ++r) {
         for (size_t c = 0; c < orig[0].size(); ++c) {
             if (orig[r][c] == '#' || orig[r][c] == '^') continue;
+            if (visited[r][c] != 'X') continue;
             map = orig;
             y = oy; x = ox; dy = ody; dx = odx;
             map[r][c] = '#';
