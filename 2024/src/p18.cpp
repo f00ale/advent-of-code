@@ -37,9 +37,8 @@ std::tuple<std::string, std::string> p18(const std::string &input) {
     }
     std::vector map(SIZE+1, std::string(SIZE+1, '.'));
     {
-        int i = 0;
-        for (auto [x,y]: data) {
-            if (++i > STEPS) break;
+        for (size_t step = 0; step < STEPS; ++step) {
+            auto [x,y] = data[step];
             map[y][x] = '#';
         }
         std::vector cost(SIZE+1, std::vector(SIZE+1, std::numeric_limits<int>::max()));
@@ -63,10 +62,10 @@ std::tuple<std::string, std::string> p18(const std::string &input) {
         ans1 = cost[SIZE][SIZE];
     }
 
-    for (int steps = STEPS+1; steps < data.size(); steps++) {
+    for (int steps = STEPS; steps < data.size(); steps++) {
         int i = 0;
-        for (auto [x,y]: data) {
-            if (++i > steps) break;
+        {
+            auto [x,y] = data[steps];
             map[y][x] = '#';
         }
         std::vector cost(SIZE+1, std::vector(SIZE+1, std::numeric_limits<int>::max()));
@@ -88,7 +87,7 @@ std::tuple<std::string, std::string> p18(const std::string &input) {
             q.emplace_back(x,y-1,c+1);
         }
         if (cost[SIZE][SIZE] == std::numeric_limits<int>::max()) {
-            auto [x,y] = data[steps-1];
+            auto [x,y] = data[steps];
             ans2 = std::to_string(x) + ',' + std::to_string(y);
             break;
         }
