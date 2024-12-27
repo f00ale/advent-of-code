@@ -7,11 +7,14 @@
 #include <map>
 #include <queue>
 #include <sstream>
+#include <unordered_set>
 
 std::tuple<std::string, std::string> p23(const std::string &input) {
     int64_t ans1 = 0;
     std::string ans2;
-    std::vector<std::tuple<std::string, std::string>> data;
+    std::vector<std::string> tokens;
+    std::map<std::string, int> str2tok;
+    std::vector<std::tuple<int, int>> data;
     {
         std::string tmp1, tmp2;
         bool first = true;
@@ -23,7 +26,15 @@ std::tuple<std::string, std::string> p23(const std::string &input) {
                 first = false;
             } else if (c=='\n') {
                 if (tmp1.size() == 2 && tmp2.size() == 2) {
-                    data.emplace_back(tmp1, tmp2);
+                    if (str2tok.find(tmp1) == str2tok.end()) {
+                        str2tok[tmp1] = tokens.size();
+                        tokens.push_back(tmp1);
+                    }
+                    if (str2tok.find(tmp2) == str2tok.end()) {
+                        str2tok[tmp2] = tokens.size();
+                        tokens.push_back(tmp2);
+                    }
+                    data.emplace_back(str2tok[tmp1], str2tok[tmp2]);
                 }
                 first = true;
                 tmp1.clear();
@@ -33,16 +44,15 @@ std::tuple<std::string, std::string> p23(const std::string &input) {
 
     }
 
-
     {
-        std::map<std::string, std::set<std::string>> map;
+        std::map<int, std::set<int>> map;
         for (auto [a,b]: data) {
             map[a].insert(a);
             map[b].insert(b);
             map[a].insert(b);
             map[b].insert(a);
         }
-        std::set<std::set<std::string>> set;
+        std::set<std::set<int>> set;
         for (auto & [a,b]: data) {
             auto & s1 = map[a];
             auto & s2 = map[b];
@@ -56,33 +66,38 @@ std::tuple<std::string, std::string> p23(const std::string &input) {
 
         for (auto & s : set) {
             for (auto & m : s) {
-                if (m[0] == 't') {
+                if (tokens[m][0] == 't') {
                     ans1++;
                     break;
                 }
             }
         }
 
-        auto tostr = [](const std::set<std::string> & s) {
+        auto tostr = [&tokens](const std::set<int> & s) {
             bool first = true;
+            std::vector<std::string> tmp;
+            tmp.reserve(s.size());
+            for (auto i : s) {
+                tmp.push_back(tokens[i]);
+            }
+            std::sort(tmp.begin(), tmp.end());
             std::ostringstream os;
-            for (auto & n : s) {
+            for (auto & n : tmp) {
                 os << (first ? "" : ",") << n;
                 first = false;
             }
             return os.str();
         };
 
-        std::set<std::string> largest;
-        std::set<std::string> seen;
+        std::set<int> largest;
+        std::set<std::set<int>> seen;
         for (auto & s : set) {
-            std::queue<std::set<std::string>> q;
+            std::queue<std::set<int>> q;
             q.emplace(s);
             while (!q.empty()) {
                 const auto curr = q.front(); q.pop();
-                auto str = tostr(curr);
-                if (seen.find(str) != seen.end()) continue;
-                seen.insert(str);
+                if (seen.find(curr) != seen.end()) continue;
+                seen.insert(curr);
                 if (curr.size() > largest.size()) { largest = curr; }
                 auto candidates = map[*curr.begin()];
                 for (auto & c : curr) {
