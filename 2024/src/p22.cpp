@@ -36,8 +36,7 @@ std::tuple<std::string, std::string> p22(const std::string &input) {
         return i;
     };
 
-    std::set<std::tuple<int,int,int,int>> seen;
-    std::vector<std::map<std::tuple<int,int,int,int>, int>> price_map;
+    std::map<std::tuple<int,int,int,int>, int> price;
     for (auto num : nums) {
         int p0 = num % 10;
         num = iterate(num);
@@ -49,13 +48,16 @@ std::tuple<std::string, std::string> p22(const std::string &input) {
         int d0 = p1-p0;
         int d1 = p2-p1;
         int d2 = p3-p2;
-        price_map.emplace_back();
+        std::set<std::tuple<int,int,int,int>> seen_set;
         for (int i = 3; i < 2000; i++) {
             num = iterate(num);
             int p4 = num % 10;
             int d3 = p4-p3;
-            seen.emplace(d0,d1,d2,d3);
-            price_map.back().insert({{d0,d1,d2,d3}, p4});
+            auto tup = std::make_tuple(d0,d1,d2,d3);
+            if (seen_set.find(tup) == seen_set.end()) {
+                price[tup] += p4;
+            }
+            seen_set.insert(tup);
             d0 = d1;
             d1 = d2;
             d2 = d3;
@@ -64,17 +66,8 @@ std::tuple<std::string, std::string> p22(const std::string &input) {
         ans1 += num;
     }
 
-    for (auto s : seen) {
-        int64_t tmp = 0;
-        for (auto & m : price_map) {
-            auto it = m.find(s);
-            if (it != m.end()) {
-                tmp += it->second;
-            }
-        }
-        if (tmp > ans2) {
-            ans2 = tmp;
-        }
+    for (auto & [k,v] : price) {
+        if (v > ans2) ans2 = v;
     }
 
     return {std::to_string(ans1), std::to_string(ans2)};
