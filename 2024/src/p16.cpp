@@ -7,15 +7,9 @@
 #include <set>
 #include <queue>
 #include <limits>
-struct Node {
-    int r, c, d, s;
-    std::set<std::tuple<int, int>> v;
-    Node(int _r, int _c, int _d, int _s, std::set<std::tuple<int,int>> _v) : r(_r), c(_c), d(_d), s(_s), v(std::move(_v)) {}
-};
-bool operator<(const Node& lhs, const Node& rhs) { return lhs.s > rhs.s; }
 
 std::tuple<std::string, std::string> p16(const std::string &input) {
-    int64_t ans1 = 0;
+    int ans1 = 0;
     int64_t ans2 = 0;
     std::vector<std::string> map;
     int startr = 0, endr = 0, startc = 0, endc = 0;
@@ -41,41 +35,69 @@ std::tuple<std::string, std::string> p16(const std::string &input) {
 
     }
 
-    std::priority_queue<Node> q; // row, col, dir, score
-    std::map<std::tuple<int,int,int>, int> visited; // row,col,dir -> score
+    std::vector costs(4, std::vector(map.size(), std::vector(map[0].size(), std::numeric_limits<int>::max())));
+
     auto get = [&map](int r, int c) {
         if (r< 0 || c < 0 || r >= map.size() || c >= map.size()) return '#';
         else return map[r][c];
     };
-    ans1 = std::numeric_limits<int64_t>::max();
-    std::set<std::tuple<int,int>> visited1;
-    q.emplace(startr, startc, 0, 0, visited1);
-    while (!q.empty()) {
-        auto [r,c,d,s,n] = q.top(); q.pop();
-        if (s > ans1) continue;
-        auto it = visited.find(std::make_tuple(r,c,d));
-        if (it != visited.end()) {
-            if (s > it->second) continue;
-        }
-        visited.emplace(std::make_tuple(r,c,d), s);
-        n.emplace(r,c);
-        if (r == endr && c == endc) {
-            if (s <= ans1) {
-                ans1 = s;
-                for (auto t : n) visited1.insert(t);
+    {
+        std::queue<std::tuple<int,int,int,int>> q; // row col dir cost
+        q.emplace(startr, startc, 0, 0);
+        while (!q.empty()) {
+            auto [r,c,d,cost] = q.front(); q.pop();
+            if (get(r,c) == '#') continue;
+            if (cost >= costs[d][r][c]) continue;
+            costs[d][r][c] = cost;
+
+            int dr = 0, dc = 0;
+            switch (d) {
+                case 0: dc = 1; break;
+                case 1: dr = -1; break;
+                case 2: dc = -1; break;
+                case 3: dr = 1; break;
             }
+
+            q.emplace(r+dr, c+dc, d, cost+1);
+
+            q.emplace(r, c, (d+1)%4, cost+1000);
+            q.emplace(r, c, (d+3)%4, cost+1000);
         }
-        int dr = 0, dc = 0;
-        switch (d) {
-            case 0: dc = 1; break;
-            case 1: dr = -1; break;
-            case 2: dc = -1; break;
-            case 3: dr = 1; break;
-        }
-        if (get(r+dr,c+dc) == '.') q.emplace(r+dr,c+dc,d,s+1,n);
-        q.emplace(r,c,(d+1)%4,s+1000,n);
-        q.emplace(r,c,(d+3)%4,s+1000,n);
     }
-    ans2 = visited1.size();
+
+    ans1 = std::numeric_limits<int>::max();
+    for (int i = 0; i < 4; i++) {
+        ans1 = std::min(ans1, costs[i][endr][endc]);
+    }
+
+    std::queue<std::tuple<int,int,int,int>> q;
+    for (int i = 0; i < 4; i++) {
+        if (costs[i][endr][endc] == ans1) {
+            q.emplace(endr, endc, i, ans1);
+        }
+    }
+
+    while (!q.empty()) {
+        auto [r,c,d,cost] = q.front(); q.pop();
+        if (get(r,c) == '#') continue;
+        if (costs[d][r][c] != cost) continue;
+        map[r][c] = 'O';
+        int dr = 0, dc = 0;
+        switch (d) { // going backwards, flipped from above
+            case 0: dc = -1; break;
+            case 1: dr = 1; break;
+            case 2: dc = 1; break;
+            case 3: dr = -1; break;
+        }
+        q.emplace(r+dr, c+dc, d, cost-1);
+        q.emplace(r, c, (d+1)%4, cost-1000);
+        q.emplace(r, c, (d+3)%4, cost-1000);
+    }
+    for (auto & s : map) {
+        for (auto & c : s) {
+            if (c=='O') ans2++;
+        }
+    }
+
     return {std::to_string(ans1), std::to_string(ans2)};
 }
