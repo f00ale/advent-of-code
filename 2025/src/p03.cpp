@@ -39,7 +39,7 @@ std::tuple<std::string, std::string> p03(const std::string &input) {
                 mul *= 10;
                 for (int i = r.size()-1; i >= 0; i--) {
                     uint64_t tmp = r[i] * mul;
-                    for (int j = i+1; j < r.size(); j++) {
+                    for (size_t j = i+1; j < r.size(); j++) {
                         if (!dp[j][n-1]) continue;
                         if (tmp + dp[j][n-1] > dp[i][n]) dp[i][n] = tmp + dp[j][n-1];
                     }
