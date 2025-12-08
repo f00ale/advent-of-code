@@ -49,8 +49,9 @@ std::tuple<std::string, std::string> p08(const std::string &input) {
         }
     }
 
+    size_t tosort = std::min(dists.size(), size_t(6000));
     std::vector setsize(nums.size(), size_t(1));
-    std::sort(dists.begin(), dists.end());
+    std::partial_sort(dists.begin(), dists.begin()+tosort, dists.end());
     size_t idx = 0;
     for (auto [d,a,b] : dists) {
         auto sa = setidx[a];
@@ -71,6 +72,10 @@ std::tuple<std::string, std::string> p08(const std::string &input) {
             auto cpy = setsize;
             std::sort(cpy.begin(), cpy.end(),std::greater<>());
             ans1 = cpy[0]*cpy[1]*cpy[2];
+        }
+        if (idx == tosort) {
+            tosort = std::min(tosort+3000, dists.size());
+            partial_sort(dists.begin()+idx, dists.begin()+tosort, dists.end());
         }
     }
 
